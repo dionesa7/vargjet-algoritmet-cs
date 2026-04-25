@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <title>Rekurzioni vs Induksioni</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .code-block { background: #272822; color: #f8f8f2; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 13px; margin: 10px 0; }
+        .highlight { color: #a6e22e; } /* Green */
+        .func-name { color: #66d9ef; } /* Blue */
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align:center;">Vargjet Numerike: Rekurzioni vs Induksioni</h2>
+    
+    <div class="grid">
+        <div class="card">
+            <h3>Logjika e Programimit</h3>
+            
+            <div class="code-block">
+                <span class="highlight">// 1. Rekurzioni (Hapi i Induksionit)</span><br>
+                <span class="func-name">function</span> rekurziv(n) {<br>
+                &nbsp;&nbsp;if (n <= 1) return n;<br>
+                &nbsp;&nbsp;return n + rekurziv(n - 1);<br>
+                }
+            </div>
+
+            <div class="code-block">
+                <span class="highlight">// 2. Formula (E vërtetuar me Induksion)</span><br>
+                <span class="func-name">function</span> formula(n) {<br>
+                &nbsp;&nbsp;return (n * (n + 1)) / 2;<br>
+                }
+            </div>
+            
+            <div style="margin-top:20px;">
+                <label>Testo vlerën n:</label>
+                <input type="number" id="inputValue" value="100" style="width:80px;">
+                <button onclick="calculate()">Ekzekuto</button>
+            </div>
+            <p id="resultText" style="font-weight:bold; color: #2c3e50;"></p>
+        </div>
+
+        <div class="card">
+            <div id="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            let n = parseInt(document.getElementById('inputValue').value);
+            
+            // Matja e performancës (thjeshtësuar për prezantim)
+            let start = performance.now();
+            let resFormula = (n * (n + 1)) / 2;
+            let end = performance.now();
+            let timeFormula = end - start;
+
+            // Shpjegimi për profesoreshën
+            let stackDepth = n; 
+            document.getElementById('resultText').innerHTML = 
+                `Rezultati: ${resFormula} <br><br>` +
+                `Analiza Kompjuterike:<br>` +
+                `• Formula: 1 operacion (O(1))<br>` +
+                `• Rekurzioni: ${n} thirrje në Stack (O(n))<br>` +
+                (n > 10000 ? `<span style="color:red;">⚠️ Stack Overflow rrezikohet këtu!</span>` : `✅ Stack i sigurt.`);
+
+            plotComparison(n);
+        }
+
+        function plotComparison(nMax) {
+            let steps = Array.from({length: 10}, (_, i) => Math.floor((i + 1) * nMax / 10));
+            
+            let data = [{
+                x: steps,
+                y: steps.map(s => s), // O(n)
+                name: 'Hapësira në Memorie (Stack)',
+                type: 'bar',
+                marker: {color: '#e74c3c'}
+            }, {
+                x: steps,
+                y: steps.map(s => 1), // O(1)
+                name: 'Kostoja e Formulës',
+                type: 'bar',
+                marker: {color: '#2ecc71'}
+            }];
+
+            Plotly.newPlot('chart', data, { title: 'Përdorimi i Burimeve' });
+        }
+        calculate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+    <meta charset="UTF-8">
+    <title>Fibonacci: Rekurzioni vs Optimizimi</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; }
+        .dashboard { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .card { background: #16213e; padding: 20px; border-radius: 15px; border: 1px solid #0f3460; }
+        .btn { background: #e94560; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #ff4d6d; }
+        .result-box { margin-top: 15px; font-size: 1.1em; color: #4ecca3; }
+        .code { background: #0f3460; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; color: #00d2ff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="text-align:center;">Fibonacci: Kur Matematika Shpëton Procesorin</h1>
+    
+    <div class="dashboard">
+        <div class="card">
+            <h3>Parametrat</h3>
+            <label>Gjej numrin Fibonacci n:</label><br><br>
+            <input type="number" id="fibN" value="30" min="1" max="45" style="width: 100%; padding: 8px; border-radius: 5px;"><br><br>
+            <button class="btn" onclick="runFibGara()">Nis Garën!</button>
+            
+            <div class="result-box" id="results"></div>
+            
+            <h4>Metoda 1: Rekurzioni i Thjeshtë</h4>
+            <div class="code">return fib(n-1) + fib(n-2);</div>
+            <p style="font-size: 0.8em; color: #999;">Kompleksiteti: O(1.618ⁿ) - Eksponencial</p>
+        </div>
+
+        <div class="card">
+            <div id="fibChart"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let thirrjeTotal = 0;
+
+function fibRekurzit(n) {
+    thirrjeTotal++;
+    if (n <= 1) return n;
+    return fibRekurzit(n - 1) + fibRekurzit(n - 2);
+}
+
+function runFibGara() {
+    let n = parseInt(document.getElementById('fibN').value);
+    thirrjeTotal = 0;
+
+    // Matim kohën për rekurzionin
+    let t0 = performance.now();
+    let res = (n > 35) ? "Shumë i lartë për rekurzion..." : fibRekurzit(n);
+    let t1 = performance.now();
+    let kohaRek = t1 - t0;
+
+    // Metoda me Formulë (Binet's Formula - Induksioni)
+    let phi = (1 + Math.sqrt(5)) / 2;
+    let psi = (1 - Math.sqrt(5)) / 2;
+    let resFormula = Math.round((Math.pow(phi, n) - Math.pow(psi, n)) / Math.sqrt(5));
+
+    document.getElementById('results').innerHTML = `
+        <b>Rezultati:</b> ${resFormula} <br>
+        <b>Thirrje Rekurzive:</b> ${thirrjeTotal.toLocaleString()} <br>
+        <b>Koha:</b> ${kohaRek.toFixed(4)} ms
+    `;
+
+    plotFib(n, thirrjeTotal);
+}
+
+function plotFib(n, thirrje) {
+    let x = [n];
+    let y = [thirrje];
+    
+    let trace = {
+        x: Array.from({length: n}, (_, i) => i),
+        y: Array.from({length: n}, (_, i) => Math.pow(1.618, i)),
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: 'Rritja e Thirrjeve (O(1.618ⁿ))',
+        line: {color: '#e94560'}
+    };
+
+    let layout = {
+        title: 'Pse dështon kompjuterit pa Matematikë?',
+        paper_bgcolor: '#16213e',
+        plot_bgcolor: '#16213e',
+        font: {color: 'white'},
+        yaxis: {title: 'Numri i thirrjeve në procesor', type: 'log'}
+    };
+
+    Plotly.newPlot('fibChart', [trace], layout);
+}
+</script>
+</body>
+</html>
